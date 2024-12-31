@@ -24,6 +24,6 @@
 		"noUnusedParameters": true,
 		"noImplicitAny": true,
 		"noImplicitOverride": true,
-		"importHelpers": true,
-	},
+		"importHelpers": true
+	}
 }

@@ -28,10 +28,7 @@ async function build(
 		target: "browser",
 		// @ts-ignore - cjs is experimental and only works on canary build of bun
 		format,
-		plugins: [
-      InlineWasmBunPlugin,
-      ...(stripDebug ? [stripDebugPlugin()] : []),
-    ],
+		plugins: [InlineWasmBunPlugin, ...(stripDebug ? [stripDebugPlugin()] : [])],
 		external: [
 			"obsidian",
 			"electron",

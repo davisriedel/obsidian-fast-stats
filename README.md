@@ -11,7 +11,6 @@
 <!-- markdownlint-disable-next-line -->
 [![](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge\&logo=GitHub-Sponsors\&logoColor=#EA4AAA)](https://github.com/sponsors/davisriedel)
 
-
 ## Compatibility
 
 This plugin is compatible with Obsidian v0.15.0 and above.

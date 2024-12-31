@@ -5,10 +5,12 @@
   "author": "Davis Riedel",
   "devDependencies": {
     "@codemirror/state": "^6.4.1",
+    "@namchee/bun-plugin-strip-debug": "^1.0.4",
     "@types/node": "^20.11.25",
     "builtin-modules": "3.3.0",
     "obsidian": "latest",
     "resolve-tspaths": "^0.8.22",
+    "sass-embedded": "^1.83.0",
     "typescript": "^5.3.3",
     "wasm-pack": "^0.13.0"
   },
