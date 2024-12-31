@@ -3,6 +3,7 @@ import {
 	type Plugin,
 	type WorkspaceLeaf,
 	debounce,
+  Platform
 } from "obsidian";
 
 import Handlebars from "handlebars";
@@ -68,6 +69,9 @@ export default class FastStatsLib {
 		this.customStatTypeParsers = this.settings.customStatTypes.map(
 			({ id, expr }) => ({ id, expr: parser.parse(expr) }),
 		);
+
+    // NOTE: We only provide the API on mobile, but not the live counting in the status bar
+    if (!Platform.isDesktop) return;
 
 		this.statusBarItemEl = this.plugin.addStatusBarItem();
 		this.statusBarTemplate = Handlebars.compile(
