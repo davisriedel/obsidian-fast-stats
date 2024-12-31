@@ -11,6 +11,10 @@
 <!-- markdownlint-disable-next-line -->
 [![](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge\&logo=GitHub-Sponsors\&logoColor=#EA4AAA)](https://github.com/sponsors/davisriedel)
 
+## Status
+
+**THIS IS A WORK IN PROGRESS WITH SEVERAL FEATURES STILL MISSING.**
+
 ## Compatibility
 
 This plugin is compatible with Obsidian v0.15.0 and above.
@@ -21,12 +25,13 @@ To install community plugins, make sure _safe mode_ is turned off in Obsidian's 
 
 ### Obsidian
 
-You can install this plugin within Obsidian by doing the following:
-
-- Go to Settings > Community Plugins > Browse
-- Search for “Obsidian Fast Stats”
-- Click Install
-- Click Enable
+The plugin is not yet available in Obsidian, because it is in beta. Please use BRAT to install the plugin, or install manually as described below.
+<!-- You can install this plugin within Obsidian by doing the following: -->
+<!---->
+<!-- - Go to Settings > Community Plugins > Browse -->
+<!-- - Search for “Obsidian Fast Stats” -->
+<!-- - Click Install -->
+<!-- - Click Enable -->
 
 ### Manual
 
