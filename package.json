@@ -1,0 +1,20 @@
+{
+  "name": "obsidian-fast-stats",
+  "description": "Rust-based word counter plugin for Obsidian.",
+  "version": "0.1.0-beta.1",
+  "author": "Davis Riedel",
+  "devDependencies": {
+    "@codemirror/state": "^6.4.1",
+    "@types/node": "^20.11.25",
+    "builtin-modules": "3.3.0",
+    "obsidian": "latest",
+    "resolve-tspaths": "^0.8.22",
+    "typescript": "^5.3.3",
+    "wasm-pack": "^0.13.0"
+  },
+  "dependencies": {
+    "expr-eval": "^2.0.2",
+    "handlebars": "^4.7.8",
+    "moment": "^2.30.1"
+  }
+}

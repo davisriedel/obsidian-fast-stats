@@ -1,0 +1,17 @@
+[package]
+name = "obsidian-fast-stats"
+version = "0.1.0"
+authors = ["Davis Riedel"]
+edition = "2021"
+
+[lib]
+path = "src/rust/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+js-sys = "0.3.69"
+pulldown-cmark = { version = "0.12.2", default-features = false }
+wasm-bindgen = "0.2.92"
+strum = { version = "0.26", features = ["derive"] }
+regex = "1.10.3"
+console_error_panic_hook = "0.1.7"
