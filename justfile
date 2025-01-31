@@ -25,26 +25,22 @@ check: tsc biome rustfmt stylelint markdownlint
 
 
 [private]
-build-wasm:
-  bun ./scripts/build-wasm.ts
-
-[private]
-build: build-wasm
+build:
   bun ./scripts/build.ts
 
-dev: build-wasm
+dev:
   bun ./scripts/dev.ts
 
-debug: build-wasm
+debug:
   bun ./scripts/dev.ts --debug
 
-build-lib: build-wasm
-  bun ./scripts/build-lib.ts
+build-lib:
+  bun ./scripts/build.ts --lib
 
 
 release: check
   bun ./scripts/release.ts
 
 ci: build
-  bun ./scripts/create-ci-artefacts.ts
+  bun ./scripts/generate-ci-artefacts.ts
 

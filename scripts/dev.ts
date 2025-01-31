@@ -1,14 +1,8 @@
 /// <reference types="bun-types" />
 
 import { parseArgs } from "node:util";
-import { $ } from "bun";
-
-import { buildPlugin } from "./utils/build";
-import { getPackageMetadata } from "./utils/getPackageMetadata";
-import { updateManifests } from "./utils/updateManifests";
-
-const obsidianConfigPath = "./test-vault/.obsidian";
-const pluginPath = `${obsidianConfigPath}/plugins/obsidian-fast-stats`;
+import { build } from "./common/scripts/build";
+import { setupTestVault } from './common/scripts/setupTestVault';
 
 const { values: args } = parseArgs({
 	args: Bun.argv,
@@ -21,37 +15,6 @@ const { values: args } = parseArgs({
 	allowPositionals: true,
 });
 
-console.log("Creating test vault");
-await $`mkdir -p ${pluginPath}`.quiet();
+await build("src", { main: "main.ts", styles: "styles/index.scss" }, "dist", "cjs", args.debug, false, { build: false });
 
-if (
-	!(await Bun.file(`${obsidianConfigPath}/community-plugins.json`).exists())
-) {
-	console.log("Creating community-plugins.json");
-	await Bun.write(
-		`${obsidianConfigPath}/community-plugins.json`,
-		'["obsidian-fast-stats"]',
-	);
-} else {
-	console.log("Community plugins already configured in test vault");
-}
-
-console.log("Cleaning test vault");
-await $`rm ${pluginPath}/main.js ${pluginPath}/styles.css ${pluginPath}/manifest.json`.quiet();
-
-console.log("Building plugin");
-const isDebugMode = args.debug ?? false;
-await buildPlugin(pluginPath, !isDebugMode);
-
-console.log("Copying updated manifests");
-const { targetVersion, minAppVersion, isBeta } = await getPackageMetadata();
-await updateManifests(targetVersion, minAppVersion, pluginPath);
-
-console.log("Selecting manifest");
-if (isBeta) {
-	await $`mv ${pluginPath}/manifest-beta.json ${pluginPath}/manifest.json`.quiet();
-} else {
-	await $`rm ${pluginPath}/manifest-beta.json`.quiet();
-}
-
-console.log("Test vault successfully prepared");
+await setupTestVault("obsidian-fast-stats", "./test-vault");
