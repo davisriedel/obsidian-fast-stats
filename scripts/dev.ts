@@ -17,4 +17,4 @@ const { values: args } = parseArgs({
 
 await build("src", { main: "main.ts", styles: "styles/index.scss" }, "dist", "cjs", args.debug, false, { build: false });
 
-await setupTestVault("obsidian-fast-stats", "./test-vault");
+await setupTestVault("dist", "obsidian-fast-stats", "./test-vault");

@@ -23,7 +23,7 @@ export default class FastStatsLib {
 	private readonly loadData: () => Promise<FastStatsSettings>;
 	private readonly saveData: (settings: FastStatsSettings) => Promise<void>;
 
-	private settings: FastStatsSettings = DEFAULT_SETTINGS;
+	public settings: FastStatsSettings = DEFAULT_SETTINGS;
 
 	private statusBarItemEl?: HTMLElement;
 

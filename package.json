@@ -16,7 +16,11 @@
     "resolve-tspaths": "^0.8.22",
     "typescript": "latest",
     "wasm-pack": "^0.13.0",
-		"@types/bun": "latest",
-		"@biomejs/biome": "latest"
-  }
+    "@types/bun": "latest",
+    "@biomejs/biome": "latest"
+  },
+  "trustedDependencies": [
+    "@biomejs/biome",
+    "wasm-pack"
+  ]
 }
