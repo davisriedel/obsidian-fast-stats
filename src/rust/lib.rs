@@ -6,7 +6,7 @@ mod parser;
 
 use wasm_bindgen::prelude::*;
 
-use parser::{count, Counts, ParserOptions};
+use parser::{Counts, ParserOptions, count};
 use std::convert::Into;
 use std::str::FromStr;
 use strum::EnumString;
@@ -51,12 +51,12 @@ impl StatCounterOptions {
   }
 }
 
-impl Into<ParserOptions> for StatCounterOptions {
-  fn into(self) -> ParserOptions {
+impl From<StatCounterOptions> for ParserOptions {
+  fn from(val: StatCounterOptions) -> Self {
     ParserOptions {
-      strip_comments: self.strip_comments,
-      strip_code_blocks: self.strip_code_blocks,
-      strip_metadata_blocks: self.strip_metadata_blocks,
+      strip_comments: val.strip_comments,
+      strip_code_blocks: val.strip_code_blocks,
+      strip_metadata_blocks: val.strip_metadata_blocks,
     }
   }
 }
