@@ -13,19 +13,19 @@ export const DEFAULT_SETTINGS: FastStatsSettings = {
   customStatTypes: [
     {
       id: "words",
-      expr: "Words",
+      expr: "words",
     },
     {
       id: "chars",
-      expr: "Chars",
+      expr: "chars",
     },
     {
       id: "pages",
-      expr: "roundTo(Chars / 1800, 2)",
+      expr: "roundTo(chars / 1800, 2)",
     },
     {
       id: "read",
-      expr: "minsToTime(Words / 183, 'mm:ss')",
+      expr: "minsToTime(words / 183, 'mm:ss')",
     },
   ],
   statusBarTemplate: "{{chars}}c {{words}}w {{pages}}p {{read}}r",

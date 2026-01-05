@@ -121,6 +121,33 @@ export default class FastStatsLib {
     await this.saveData(this.settings);
   }
 
+  updateCustomStatTypes(): void {
+    try {
+      this.customStatTypeParsers = this.settings.customStatTypes.map(
+        ({ id, expr }) => ({ id, expr: parser.parse(expr) })
+      );
+    } catch (error) {
+      console.error("Error parsing custom stat type expression:", error);
+      this.customStatTypeParsers = this.settings.customStatTypes.map(
+        ({ id }) => ({ id, expr: parser.parse("0") })
+      );
+    }
+
+    if (Platform.isDesktop) {
+      this.statusBarTemplate = Handlebars.compile(
+        this.settings.statusBarTemplate
+      );
+
+      if (this.statCounter) {
+        this.stats = getStatReport(
+          this.customStatTypeParsers,
+          this.statCounter
+        );
+        this.updateStatusBar();
+      }
+    }
+  }
+
   change(text: string) {
     if (!this.statCounter) {
       return;
