@@ -40,10 +40,7 @@ pub fn register_custom_functions(context: &mut HashMapContext) -> Result<(), Eva
     "pluralize".to_string(),
     evalexpr::Function::new(pluralize_function),
   )?;
-  context.set_function(
-    "clamp".to_string(),
-    evalexpr::Function::new(clamp_function),
-  )?;
+  context.set_function("clamp".to_string(), evalexpr::Function::new(clamp_function))?;
   context.set_function(
     "abbreviateNum".to_string(),
     evalexpr::Function::new(abbreviate_num_function),
@@ -218,7 +215,11 @@ fn format_percent_function(args: &Value) -> Result<Value, EvalexprError> {
     ));
   }
 
-  let percent = if total == 0.0 { 0.0 } else { (value / total) * 100.0 };
+  let percent = if total == 0.0 {
+    0.0
+  } else {
+    (value / total) * 100.0
+  };
 
   let multiplier = 10_f64.powi(decimals as i32);
   let rounded = (percent * multiplier).round() / multiplier;
@@ -405,7 +406,10 @@ mod tests {
 
   #[test]
   fn test_hours_to_time() {
-    let args = Value::Tuple(vec![Value::Float(1.5), Value::String("%H:%M:%S".to_string())]);
+    let args = Value::Tuple(vec![
+      Value::Float(1.5),
+      Value::String("%H:%M:%S".to_string()),
+    ]);
     let result = hours_to_time_function(&args).unwrap();
     assert_eq!(result, Value::String("01:30:00".to_string()));
 
@@ -420,7 +424,10 @@ mod tests {
     let result = seconds_to_time_function(&args).unwrap();
     assert_eq!(result, Value::String("01:30".to_string()));
 
-    let args = Value::Tuple(vec![Value::Int(3661), Value::String("%H:%M:%S".to_string())]);
+    let args = Value::Tuple(vec![
+      Value::Int(3661),
+      Value::String("%H:%M:%S".to_string()),
+    ]);
     let result = seconds_to_time_function(&args).unwrap();
     assert_eq!(result, Value::String("01:01:01".to_string()));
   }
