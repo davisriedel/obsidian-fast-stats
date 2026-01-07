@@ -1,4 +1,3 @@
-import Handlebars from "handlebars";
 import {
   debounce,
   type MarkdownView,
@@ -6,18 +5,12 @@ import {
   type Plugin,
   type WorkspaceLeaf,
 } from "obsidian";
-import init, {
-  StatCounter,
-  StatCounterOptions,
-} from "../pkg/obsidian_fast_stats";
+import wasmInit, { ExpressionEngine, init } from "../pkg/obsidian_fast_stats";
 import wasmBinary from "../pkg/obsidian_fast_stats_bg.wasm";
-import parser from "./expr-parser";
 import {
   DEFAULT_SETTINGS,
   type FastStatsSettings,
 } from "./fast-stats-settings";
-import type { StatReport } from "./stat-report";
-import { getStatReport } from "./stat-report-factory";
 import { pluginField, statusBarEditorPlugin } from "./status-bar-editor-plugin";
 
 export default class FastStatsLib {
@@ -28,17 +21,8 @@ export default class FastStatsLib {
   settings: FastStatsSettings = DEFAULT_SETTINGS;
 
   private statusBarItemEl?: HTMLElement;
-
-  // biome-ignore  lint/suspicious/noExplicitAny: expr-eval does not provide typescript types
-  private statusBarTemplate: any;
-
-  private statCounter: StatCounter | null = null;
-  private customStatTypeParsers: {
-    id: string;
-    // biome-ignore  lint/suspicious/noExplicitAny: expr-eval does not provide typescript types
-    expr: any;
-  }[] = [];
-  private stats: StatReport = {};
+  private expressionEngine: ExpressionEngine | null = null;
+  private currentText = "";
 
   constructor(
     plugin: Plugin,
@@ -51,7 +35,8 @@ export default class FastStatsLib {
   }
 
   private async initializeWasm() {
-    await init(wasmBinary);
+    await wasmInit(wasmBinary);
+    init();
   }
 
   async load() {
@@ -59,17 +44,11 @@ export default class FastStatsLib {
     await this.loadSettings();
     await this.saveSettings(); // if default settings were loaded
 
-    this.statCounter = new StatCounter(
-      new StatCounterOptions(
-        this.settings.stripComments,
-        this.settings.stripCodeBlocks,
-        this.settings.stripMetadataBlocks
-      )
-    );
-
-    this.customStatTypeParsers = this.settings.customStatTypes.map(
-      ({ id, expr }) => ({ id, expr: parser.parse(expr) })
-    );
+    this.expressionEngine = new ExpressionEngine({
+      strip_comments: this.settings.stripComments,
+      strip_code_blocks: this.settings.stripCodeBlocks,
+      strip_metadata_blocks: this.settings.stripMetadataBlocks,
+    });
 
     // NOTE: We only provide the API on mobile, but not the live counting in the status bar
     if (!Platform.isDesktop) {
@@ -77,9 +56,6 @@ export default class FastStatsLib {
     }
 
     this.statusBarItemEl = this.plugin.addStatusBarItem();
-    this.statusBarTemplate = Handlebars.compile(
-      this.settings.statusBarTemplate
-    );
 
     this.plugin.registerEditorExtension([
       pluginField.init(() => this),
@@ -122,48 +98,38 @@ export default class FastStatsLib {
   }
 
   updateCustomStatTypes(): void {
-    try {
-      this.customStatTypeParsers = this.settings.customStatTypes.map(
-        ({ id, expr }) => ({ id, expr: parser.parse(expr) })
-      );
-    } catch (error) {
-      console.error("Error parsing custom stat type expression:", error);
-      this.customStatTypeParsers = this.settings.customStatTypes.map(
-        ({ id }) => ({ id, expr: parser.parse("0") })
-      );
-    }
-
-    if (Platform.isDesktop) {
-      this.statusBarTemplate = Handlebars.compile(
-        this.settings.statusBarTemplate
-      );
-
-      if (this.statCounter) {
-        this.stats = getStatReport(
-          this.customStatTypeParsers,
-          this.statCounter
-        );
-        this.updateStatusBar();
-      }
+    // Custom stat types are now handled by the Rust expression engine
+    // Just trigger a status bar update if we have data
+    if (Platform.isDesktop && this.expressionEngine) {
+      this.updateStatusBar();
     }
   }
 
   change(text: string) {
-    if (!this.statCounter) {
-      return;
-    }
-    this.statCounter?.doc_changed(text);
-    this.stats = getStatReport(this.customStatTypeParsers, this.statCounter);
+    this.currentText = text;
     this.updateStatusBar();
   }
 
   updateStatusBar() {
-    const statusBarText = this.statusBarTemplate(this.stats);
-    if (!this.statusBarItemEl) {
+    if (!(this.statusBarItemEl && this.expressionEngine)) {
       return;
     }
-    this.statusBarItemEl.style.display = "inline-block";
-    this.statusBarItemEl.setText(statusBarText);
+
+    try {
+      // Render status bar using Rust expression engine
+      // CustomStat objects can be passed directly as plain JS objects
+      const statusBarText = this.expressionEngine.render_status_bar(
+        this.currentText,
+        this.settings.customStatTypes,
+        this.settings.statusBarTemplate
+      );
+
+      this.statusBarItemEl.style.display = "inline-block";
+      this.statusBarItemEl.setText(statusBarText);
+    } catch (error) {
+      console.error("Error rendering status bar:", error);
+      this.statusBarItemEl.setText("Error");
+    }
   }
 
   updateAltStatusBar() {

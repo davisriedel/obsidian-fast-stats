@@ -1,7 +1,13 @@
 use pulldown_cmark::{CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream};
+use tsify::Tsify;
 
-// use crate::console_log;
-// use crate::console_log::log;
+#[derive(Debug, Clone, Copy, serde::Deserialize, serde::Serialize, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct ParserOptions {
+  pub strip_comments: bool,
+  pub strip_code_blocks: bool,
+  pub strip_metadata_blocks: bool,
+}
 
 #[derive(Debug, Default)]
 pub struct Counts {
@@ -27,13 +33,6 @@ impl ParserState {
       is_comment: false,
     }
   }
-}
-
-#[derive(Debug)]
-pub struct ParserOptions {
-  pub strip_comments: bool,
-  pub strip_code_blocks: bool,
-  pub strip_metadata_blocks: bool,
 }
 
 fn count_sentences(input: &str) -> usize {

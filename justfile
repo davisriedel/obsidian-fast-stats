@@ -21,7 +21,10 @@ markdownlint:
 typecheck:
   bun tsgo --noEmit
 
-check: typecheck lint stylelint markdownlint
+test:
+  cargo test
+
+check: typecheck test lint stylelint markdownlint
 
 build:
   bun ./scripts/build.ts

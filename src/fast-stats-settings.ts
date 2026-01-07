@@ -30,7 +30,7 @@ export const DEFAULT_SETTINGS: FastStatsSettings = {
   ],
   statusBarTemplate: "{{chars}}c {{words}}w {{pages}}p {{read}}r",
   stripComments: true,
-  stripCodeBlocks: false,
+  stripCodeBlocks: true,
   stripMetadataBlocks: true,
-  debounceRate: 50,
+  debounceRate: 250,
 };

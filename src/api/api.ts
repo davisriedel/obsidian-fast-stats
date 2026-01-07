@@ -1,14 +1,9 @@
 import { normalizePath, TFile } from "obsidian";
-import { StatCounter, StatCounterOptions } from "../../pkg/obsidian_fast_stats";
-import parser from "../expr-parser";
+import {
+  ExpressionEngine,
+  type ParserOptions,
+} from "../../pkg/obsidian_fast_stats";
 import type FastStatsLib from "../lib";
-import { calculateMetric } from "../stat-report-factory";
-
-export interface StatCounterOptionsFieldsType {
-  stripComments: boolean;
-  stripCodeBlocks: boolean;
-  stripMetadataBlocks: boolean;
-}
 
 export default class Api {
   private lib: FastStatsLib;
@@ -17,20 +12,9 @@ export default class Api {
     this.lib = lib;
   }
 
-  getStat(
-    text: string,
-    expr: string,
-    options: StatCounterOptionsFieldsType
-  ): number {
-    const c = new StatCounter(
-      new StatCounterOptions(
-        options.stripComments,
-        options.stripCodeBlocks,
-        options.stripMetadataBlocks
-      )
-    );
-    c.doc_changed(text);
-    return calculateMetric(c, parser.parse(expr));
+  getStat(text: string, expr: string, options: ParserOptions): number {
+    const engine = new ExpressionEngine(options);
+    return engine.evaluate_expression(text, expr);
   }
 
   private async countPagePath(
@@ -53,7 +37,7 @@ export default class Api {
   async getStatFromPageAtPath(
     path: string,
     expr: string,
-    options: StatCounterOptionsFieldsType
+    options: ParserOptions
   ): Promise<number | null> {
     return await this.countPagePath(path, (text) =>
       this.getStat(text, expr, options)
