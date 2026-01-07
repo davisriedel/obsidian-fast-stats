@@ -25,10 +25,10 @@ export const DEFAULT_SETTINGS: FastStatsSettings = {
     },
     {
       id: "read",
-      expr: "minsToTime(words / 183, 'mm:ss')",
+      expr: "formatDuration(words / 183)",
     },
   ],
-  statusBarTemplate: "{{chars}}c {{words}}w {{pages}}p {{read}}r",
+  statusBarTemplate: "{{chars}}c {{words}}w {{pages}}p {{read}}",
   stripComments: true,
   stripCodeBlocks: true,
   stripMetadataBlocks: true,
