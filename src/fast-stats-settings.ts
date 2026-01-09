@@ -7,6 +7,9 @@ export interface FastStatsSettings {
   stripCodeBlocks: boolean;
   stripMetadataBlocks: boolean;
   debounceRate: number;
+
+  version: string | null;
+  isAnnounceUpdatesEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: FastStatsSettings = {
@@ -25,4 +28,6 @@ export const DEFAULT_SETTINGS: FastStatsSettings = {
   stripCodeBlocks: true,
   stripMetadataBlocks: true,
   debounceRate: 500,
+  version: null,
+  isAnnounceUpdatesEnabled: true,
 };

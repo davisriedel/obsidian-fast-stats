@@ -1,5 +1,13 @@
 import type { App } from "obsidian";
-import { Notice, PluginSettingTab, type Setting, SettingGroup } from "obsidian";
+import {
+  Component,
+  MarkdownRenderer,
+  Notice,
+  PluginSettingTab,
+  type Setting,
+  SettingGroup,
+} from "obsidian";
+import fundingText from "@/texts/Funding.md" with { type: "text" };
 import type { CustomStatType } from "./custom-stat-type";
 import type FastStatsLib from "./lib";
 
@@ -78,6 +86,37 @@ export class FastStatsSettingsTab extends PluginSettingTab {
 
     this.displayCustomStatTypes(containerEl);
     this.displayCustomFunctionsDocumentation(containerEl);
+
+    this.displayUpdateAndFundingInfo(containerEl);
+  }
+
+  private displayUpdateAndFundingInfo(containerEl: HTMLElement): void {
+    new SettingGroup(containerEl)
+      .setHeading("Updates and funding")
+      .addSetting((setting) =>
+        setting
+          .addToggle((cb) => {
+            cb.setValue(this.lib.settings.isAnnounceUpdatesEnabled);
+            cb.onChange((v) => {
+              this.lib.settings.isAnnounceUpdatesEnabled = v;
+              this.lib.saveSettings();
+            });
+          })
+          .setName("Announce updates")
+          .setDesc(
+            "If enabled you will get a notice with release notes whenever you install a new version of Fast Stats"
+          )
+      );
+
+    const updateNoticeDiv = containerEl.createDiv();
+    this.containerEl.appendChild(updateNoticeDiv);
+    MarkdownRenderer.render(
+      this.app,
+      fundingText,
+      updateNoticeDiv,
+      this.app.vault.getRoot().path,
+      new Component()
+    );
   }
 
   private displayCustomStatTypes(containerEl: HTMLElement): void {
