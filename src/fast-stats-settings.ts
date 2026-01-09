@@ -12,14 +12,6 @@ export interface FastStatsSettings {
 export const DEFAULT_SETTINGS: FastStatsSettings = {
   customStatTypes: [
     {
-      id: "words",
-      expr: "words",
-    },
-    {
-      id: "chars",
-      expr: "chars",
-    },
-    {
       id: "pages",
       expr: "roundTo(chars / 1800, 2)",
     },
@@ -32,5 +24,5 @@ export const DEFAULT_SETTINGS: FastStatsSettings = {
   stripComments: true,
   stripCodeBlocks: true,
   stripMetadataBlocks: true,
-  debounceRate: 250,
+  debounceRate: 500,
 };

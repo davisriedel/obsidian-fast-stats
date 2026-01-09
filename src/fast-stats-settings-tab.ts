@@ -109,6 +109,7 @@ export class FastStatsSettingsTab extends PluginSettingTab {
     index: number
   ): void {
     setting.settingEl.style.display = "flex";
+    setting.infoEl.style.display = "none";
 
     let pendingId = statType.id;
     let pendingExpr = statType.expr;
