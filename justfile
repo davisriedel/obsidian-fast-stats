@@ -1,30 +1,31 @@
 default:
   just --list
 
-
-[private]
-rustfmt:
+rs-lint:
   cargo fmt
+  cargo clippy
 
-[private]
-biome:
+ts-lint:
   bun biome check --write ./src ./scripts
 
-[private]
+lint:
+  just rs-lint
+  just ts-lint
+
 stylelint:
   bun stylelint --fix "src/**/*.scss"
 
-[private]
 markdownlint:
   bun markdownlint --disable MD013 --fix "**/*.md"
 
-tsc:
-  bun tsc --noEmit
+typecheck:
+  bun tsgo --noEmit
 
-check: tsc biome rustfmt stylelint markdownlint
+test:
+  cargo test
 
+check: typecheck test lint stylelint markdownlint
 
-[private]
 build:
   bun ./scripts/build.ts
 

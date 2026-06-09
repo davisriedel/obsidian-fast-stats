@@ -1,7 +1,13 @@
 use pulldown_cmark::{CowStr, Event, Options, Parser, Tag, TagEnd, TextMergeStream};
+use tsify::Tsify;
 
-// use crate::console_log;
-// use crate::console_log::log;
+#[derive(Debug, Clone, Copy, serde::Deserialize, serde::Serialize, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct ParserOptions {
+  pub strip_comments: bool,
+  pub strip_code_blocks: bool,
+  pub strip_metadata_blocks: bool,
+}
 
 #[derive(Debug, Default)]
 pub struct Counts {
@@ -29,16 +35,9 @@ impl ParserState {
   }
 }
 
-#[derive(Debug)]
-pub struct ParserOptions {
-  pub strip_comments: bool,
-  pub strip_code_blocks: bool,
-  pub strip_metadata_blocks: bool,
-}
-
 fn count_sentences(input: &str) -> usize {
   input
-    .split(|c| c == '.' || c == '?' || c == '!')
+    .split(['.', '?', '!'])
     .filter(|&s| !s.trim().is_empty())
     .count()
 }
@@ -53,10 +52,10 @@ fn count_characters_without_whitespace(input: &str) -> usize {
 
 fn add_count(text: &str, state: &mut ParserState) {
   state.counts.chars += text.len();
-  state.counts.chars_no_whitespace += count_characters_without_whitespace(&text);
+  state.counts.chars_no_whitespace += count_characters_without_whitespace(text);
   state.counts.words += text.split_whitespace().count();
-  state.counts.sentences += count_sentences(&text);
-  state.counts.paragraphs += count_paragraphs(&text);
+  state.counts.sentences += count_sentences(text);
+  state.counts.paragraphs += count_paragraphs(text);
 }
 
 #[must_use]
@@ -68,7 +67,7 @@ pub fn count(markdown: &str, options: &ParserOptions) -> Counts {
   pulldown_opts.insert(Options::ENABLE_TASKLISTS);
   pulldown_opts.insert(Options::ENABLE_YAML_STYLE_METADATA_BLOCKS);
 
-  let parser = TextMergeStream::new(Parser::new_ext(&markdown, pulldown_opts));
+  let parser = TextMergeStream::new(Parser::new_ext(markdown, pulldown_opts));
   let mut state = ParserState::new();
 
   // For each event we push into the buffer to produce the 'stripped' version.
@@ -78,8 +77,8 @@ pub fn count(markdown: &str, options: &ParserOptions) -> Counts {
       // The start and end events don't contain the text inside the tag. That's handled by the `Event::Text` arm.
       Event::Start(tag) => start_tag(&tag, &mut state),
       Event::End(tag) => end_tag(&tag, &mut state),
-      Event::Text(text) => handle_text(&text, &mut state, &options),
-      Event::Code(code) => handle_code(&code, &mut state, &options),
+      Event::Text(text) => handle_text(&text, &mut state, options),
+      Event::Code(code) => handle_code(&code, &mut state, options),
       Event::Html(_) => (),
       Event::FootnoteReference(_) => (),
       Event::TaskListMarker(_) => (),
@@ -100,7 +99,7 @@ fn start_tag(tag: &Tag, state: &mut ParserState) {
     Tag::List { .. } => fresh_line(state),
     Tag::Link { title, .. } | Tag::Image { title, .. } => {
       if !title.is_empty() {
-        add_count(&title, state);
+        add_count(title, state);
       }
     }
     Tag::Paragraph => (),
@@ -122,26 +121,28 @@ fn start_tag(tag: &Tag, state: &mut ParserState) {
     Tag::DefinitionList => (),
     Tag::DefinitionListTitle => (),
     Tag::DefinitionListDefinition => (),
+    Tag::Superscript => (),
+    Tag::Subscript => (),
   }
 }
 
 fn end_tag(tag: &TagEnd, state: &mut ParserState) {
   match tag {
     TagEnd::Paragraph => (),
-    TagEnd::Table { .. } => fresh_line(state),
+    TagEnd::Table => fresh_line(state),
     TagEnd::TableHead => fresh_line(state),
     TagEnd::TableRow => fresh_line(state),
     TagEnd::Heading { .. } => fresh_line(state),
     TagEnd::Emphasis => (),
     TagEnd::TableCell => (),
     TagEnd::Strong => (),
-    TagEnd::Link { .. } => (),
+    TagEnd::Link => (),
     TagEnd::BlockQuote(_) => fresh_line(state),
-    TagEnd::CodeBlock { .. } => fresh_line(state),
+    TagEnd::CodeBlock => fresh_line(state),
     TagEnd::List { .. } => (),
     TagEnd::Item => fresh_line(state),
-    TagEnd::Image { .. } => (), // shouldn't happen, handled in start
-    TagEnd::FootnoteDefinition { .. } => (),
+    TagEnd::Image => (), // shouldn't happen, handled in start
+    TagEnd::FootnoteDefinition => (),
     TagEnd::Strikethrough => (),
     TagEnd::HtmlBlock => (),
     TagEnd::MetadataBlock(_) => {
@@ -150,6 +151,8 @@ fn end_tag(tag: &TagEnd, state: &mut ParserState) {
     TagEnd::DefinitionList => (),
     TagEnd::DefinitionListTitle => (),
     TagEnd::DefinitionListDefinition => (),
+    TagEnd::Superscript => (),
+    TagEnd::Subscript => (),
   }
 }
 
@@ -168,12 +171,20 @@ fn handle_text(text: &CowStr<'_>, state: &mut ParserState, options: &ParserOptio
     return;
   };
 
+  if !options.strip_comments {
+    // If not stripping comments, add all text as-is
+    dbg!("pushing {}", &text);
+    add_count(text, state);
+    return;
+  }
+
+  // Only apply comment-stripping logic when strip_comments is true
   let mut parts = text.split("%%");
 
   let f = parts.next().unwrap();
   if !state.is_comment {
     dbg!("pushing {}", &f);
-    add_count(&f, state);
+    add_count(f, state);
   }
 
   for part in parts {
@@ -190,5 +201,5 @@ fn handle_code(code: &CowStr<'_>, state: &mut ParserState, options: &ParserOptio
     return;
   };
   dbg!("Pushing {}", &code);
-  add_count(&code, state);
+  add_count(code, state);
 }

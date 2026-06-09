@@ -2,19 +2,27 @@
 
 import { parseArgs } from "node:util";
 import { build } from "./common/scripts/build";
-import { setupTestVault } from './common/scripts/setupTestVault';
+import { setupTestVault } from "./common/scripts/setup-test-vault";
 
 const { values: args } = parseArgs({
-	args: Bun.argv,
-	options: {
-		debug: {
-			type: "boolean",
-		},
-	},
-	strict: true,
-	allowPositionals: true,
+  args: Bun.argv,
+  options: {
+    debug: {
+      type: "boolean",
+    },
+  },
+  strict: true,
+  allowPositionals: true,
 });
 
-await build("src", { main: "main.ts", styles: "styles/index.scss" }, "dist", "cjs", args.debug, false, { build: false });
+await build(
+  "src",
+  { main: "main.ts", styles: "styles/index.scss" },
+  "dist",
+  "cjs",
+  args.debug,
+  false,
+  { build: false }
+);
 
-await setupTestVault("obsidian-fast-stats", "./test-vault");
+await setupTestVault("dist", "obsidian-fast-stats", "./test-vault");
